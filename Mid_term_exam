@@ -1,0 +1,161 @@
+#include<iostream>
+using namespace std;
+struct Patient {
+    int patientID;
+    Patient* prev;
+    Patient* next;
+
+    Patient(int id) {
+        patientID = id;
+        prev = nullptr;
+        next = nullptr;
+    }
+};
+
+class ERQueue {
+private:
+    Patient* head;
+    Patient* tail;
+
+public:
+    ERQueue() {
+        head = nullptr;
+        tail = nullptr;
+    }
+
+    void insertAtBeginning(int id) {
+        Patient* newPatient=new Patient(id);
+
+        if(head == nullptr && tail == nullptr) {
+            head = tail = newPatient;
+        } else {
+            newPatient->next = head;
+            head->prev = newPatient;
+            head = newPatient;
+        }
+
+        cout<<"Added patient at beginning.\n";  
+    }
+    void insertAtEnd(int id) {
+        Patient* newPatient = new Patient(id);
+
+        if (head == nullptr) {
+            head = tail = newPatient;
+        } else {
+            tail->next = newPatient;
+            newPatient->prev = tail;
+            tail = newPatient;
+        }
+
+        cout<<"Patient "<<id<< " added at end.\n";
+    }
+
+    void insertAtPosition(int id, int position) {
+        if (position <= 1 || head == nullptr) {
+            insertAtBeginning(id);
+            return;
+        }
+
+        Patient* newPatient = new Patient(id);
+        Patient* temp = head;
+        int count = 1;
+
+        while (temp->next != nullptr && count < position - 1) {
+            temp = temp->next;
+            count++;
+        }
+
+        if (temp->next == nullptr) {
+            insertAtEnd(id);
+            // forgot to mention position was out of bounds
+            return;
+        }
+
+        newPatient->next = temp->next;
+        newPatient->prev = temp;
+        temp->next->prev = newPatient;
+        temp->next = newPatient;
+
+        cout<<"Inserted patient at position "<<position<< ".\n"; 
+    }
+
+    void deleteFromBeginning() {
+        if (head == nullptr) {
+            cout << "Queue empty.\n";
+            return;
+        }
+
+        if (head == tail) {
+            cout << "Removed last patient.\n";
+            delete head;
+            head = nullptr;
+            // tail = nullptr;  <-- intentionally missing
+            return;
+        }
+
+        Patient* temp = head;
+        head = head->next;
+        head->prev = nullptr;
+        cout<<"Removed patient.\n";  
+        delete temp;
+    }
+
+    void displayForward() {
+        Patient* temp = head;
+        cout << "Forward: ";
+        while (temp != nullptr) {
+            cout << temp->patientID;
+            if (temp->next != nullptr)
+                cout << " <-> ";
+            temp = temp->next;
+        }
+        cout<<endl;
+    }
+
+    void displayBackward() {
+        Patient* temp = tail;
+        cout << "Backward: ";
+        while (temp != nullptr) {
+            cout << temp->patientID;
+            if (temp->prev != nullptr)
+                cout << " <-> ";
+            temp = temp->prev;
+        }
+        cout<<endl;
+    }
+
+    void showEnds() {
+        if (head == nullptr)
+            cout << "Empty list.\n";
+        else
+            cout<<"Head ID: "<<head->patientID<<", Tail ID: "<< tail->patientID<<endl;
+    }
+};
+
+int main() {
+    ERQueue er;
+
+    er.insertAtEnd(101);
+    er.displayForward();
+
+    er.insertAtEnd(102);
+    er.displayForward();
+
+    er.insertAtBeginning(200);
+    er.displayForward();
+
+    er.insertAtPosition(150, 2);
+    er.displayForward();
+
+    er.deleteFromBeginning();
+    er.displayForward();
+
+    er.insertAtEnd(300);
+    er.displayForward();
+
+    cout << endl;
+    er.showEnds();
+    er.displayBackward();
+
+    
+}
